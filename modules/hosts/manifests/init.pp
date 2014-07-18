@@ -7,6 +7,14 @@ class hosts {
 			host_aliases => 'psmits';
 	'northbrook23': ip => '192.168.0.123',
 			host_aliases => 'jsamson';
+	'northbrook98': ip => '192.168.0.123',
+			host_aliases => 'mmasia';
+	'northbrook1': ip => '192.168.0.201',
+			host_aliases => 'snavalgund';
+	'northbrook2': ip => '192.168.0.220',
+			host_aliases => 'myu';
+	'northbrook20': ip => '192.168.0.44',
+			host_aliases => 'bschmidtt';
 
 	# Servers
 	'puppet': ip => '192.168.0.39';

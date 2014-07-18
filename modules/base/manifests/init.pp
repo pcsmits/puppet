@@ -7,4 +7,9 @@ class base {
     'screen': ensure => 'latest';
     'htop': ensure => 'latest';
   }
+  service {"sshd":
+	ensure => running,
+	hasrestart => true,
+	enable => true,
+  }
 }

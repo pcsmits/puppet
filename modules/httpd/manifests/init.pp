@@ -13,15 +13,21 @@ class httpd::config {
 		owner => 'root',
 		group => 'root',
 		mode => '600',
-		source => "puppet:///modules/httpd/httpd.conf",
+		source => "puppet://puppet/modules/httpd/httpd.conf",
 		notify => Class["httpd::service"],
 	}
+        file { "/etc/php.ini":
+                ensure => present,
+                owner => 'root',
+                group => 'root',
+                mode => '600',
+                source => "puppet://puppet/modules/httpd/php.ini",
+        }
 }
 
 class httpd::service {
 	service {"httpd":
 		ensure => running,
-		hassstatus => true,
 		hasrestart => true,
 		enable => true,
 	}

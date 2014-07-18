@@ -9,13 +9,11 @@ node 'northbrook12' {
 	include puppet::agent
 	include httpd
 	include mysqld
-	include php
 }
-node 'northbrook23' {
+node 'northbrook98' {
 	include puppet::agent
 	include httpd
 	include mysqld
-	include php
 }
 
 ## mysql web
