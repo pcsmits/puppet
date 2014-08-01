@@ -9,26 +9,16 @@ class users::server {
 	shell => '/bin/bash',
   }
 
-  group => [{'psmits': ensure => 'present'}, 'sudo']
+  group => [{'sbbAdmin': ensure => 'present'}, 'sudo']
 
-  user {'psmits':
-    home => '/home/psmits',
+  user {'sbbAdmin':
+    home => '/home/sbbAdmin',
     ensure => 'present',
-    gid => 'psmits',
+    gid => 'sbbAdmin',
     groups => 'wheel',
-    comment => 'Parker Smits',
-    managehome => true,
+    comment => 'SBB Admin',
     password => '$6$Sriaxa75$EHm7MwhlY/n1DwR69h8v/k26p4mOYfPqGzqJkj7H.vbcd1YMb4XS7hyxGe4z96QtHttQt.YoyPA3/1LSkl0GI/',
-    require => Group['psmits'],
-  }
-  file { '/home/psmits':
-	ensure => directory,
-	owner => 'psmits',
-	group => 'psmits',
-	mode => 755,
-	source => 'puppet:///modules/users/files/psmits',
-	recurse => remote,
-	require => User['psmits'],
+    require => Group['sbbAdmin'],
   }
 
 #  ssh_authorized_key {'psmits':

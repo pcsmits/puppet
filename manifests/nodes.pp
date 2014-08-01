@@ -1,20 +1,32 @@
 include base
 # Puppet server
 node 'puppet' {
-	include puppet::master
+	include server
+}
+node 'bcap' {
+	include lab
 }
 
 ## Lab machines
 node 'northbrook12' {
-	include puppet::agent
-	include httpd
-	include mysqld
+	# Parker
+	include lab
 }
 node 'northbrook98' {
-	include puppet::agent
-	include httpd
-	include mysqld
+	# Mitch
+	include lab
 }
+node 'northbrook23' {
+	# Jake
+	include lab
+}
+node 'northbrook20' {
+	#Brent
+	include lab
+}
+
+#node /^northbrook\d+$/ {
+#}
 
 ## mysql web
 #node '192.168.0.255' {
