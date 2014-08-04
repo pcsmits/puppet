@@ -1,6 +1,6 @@
 class server {
   include server::httpd
-  #include server::puppet
+  include server::puppetmaster
   include server::mysqld
 
   # if puppet  run server::puppet::master

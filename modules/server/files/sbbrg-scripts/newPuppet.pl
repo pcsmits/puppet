@@ -31,7 +31,7 @@ BLOCK
 #add new node to /etc/puppet/manifests/nodes.pp
 if($node || $ip){
 	if($node && $ip){
-		print "Adding new Host $node with IP: $ip";
+		print "Adding new Host $node with IP: $ip\n";
 		my $nodeBlock = <<BLOCK;
 node "$node" {
        include lab
@@ -60,7 +60,7 @@ BLOCK
 # add new user
 if ($user){
 	print "Adding new user $user\n";
-	my $userBlock= <<BLOCK
+	my $userBlock= <<BLOCK;
 	group {"$user":ensure => present,}
 
 	user {"$user":
@@ -79,9 +79,25 @@ BLOCK
 	close(USER);
 }
 
-##TODO  manage revisiion control
 print "Updating puppet\n";
-system('puppet apply /etc/puppet/manifests/site.pp');
+system('puppet apply /etc/puppet/manifests/site.pp')){
+my $error = $? >> 8;
+
+######################################################
 print "Signing Certificates\n";
-system('puppet cert sign --all');
-print "Puppet Updated\n";
+system("puppet cert list $node");
+$error = $? >> 8;
+if(!$error){
+	system("puppet cert sign $node");
+}else {
+	print "No cert for $node found, run puppet agent:\n\t #~ puppet agent --server puppet --waitforcert 60 --test"
+}
+
+chdir "/etc/puppet/";
+if($error){
+	print "Reverting Files\n";
+	system("git reset --hard");
+} else {
+	print "Puppet Updated\n";
+	system("git commit -m 'Puppet Autocommit all files' -a"
+}

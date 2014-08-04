@@ -8,6 +8,13 @@ class base {
           unless  => "/usr/sbin/sestatus | /bin/egrep -q '(Current mode:.*permissive|SELinux.*disabled)'";
   }
 
+#  file { "/opt/sbbrg-scripts":
+#        ensure => directory,
+#        mode => "0644",
+#        owner => 'root',
+#        group => 'root',
+#    }
+
 #  exec { "Running Yum Update on $hostname":
  #         user    => "root",
   #        command => "/usr/sbin/yum -y update",
