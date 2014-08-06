@@ -1,10 +1,18 @@
 include base
+
+node 'dev' {
+
+
+}
+
 # Puppet server
 node 'puppet' {
 	include server
+	include server::puppet
 }
 node 'bcap' {
-	include lab
+	include server
+	include server::bcap
 }
 
 ## Lab machines

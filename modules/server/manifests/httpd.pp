@@ -5,9 +5,6 @@ class server::httpd {
 class server::httpd::install {
 	Package {ensure => "installed"}
 	# installed in base now
-	# package {"httpd":}
-	# package {"php":}
-	# package {"php-pear":}
 }
 
 class server::httpd::config {
@@ -37,4 +34,4 @@ class server::httpd::service {
 	}
 }
 
-Class["server::httpd::install"] -> Class["server::httpd::config"] -> Class["server::httpd::service"]
+#Class["server::httpd::install"] -> Class["server::httpd::config"] -> Class["server::httpd::service"]

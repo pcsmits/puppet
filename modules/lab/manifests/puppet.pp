@@ -1,3 +1,0 @@
-class lab::puppet::agent {
-
-}

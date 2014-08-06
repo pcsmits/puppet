@@ -3,9 +3,9 @@ class hosts {
 	#lab machines add all new machines here
 	# then add puppet manually on local lab machine
 	# install puppet and run puppet
-	'northbrook12': ip => '192.168.0.119',
+	'northbrook12': ip => '192.168.0.67',
 			host_aliases => 'psmits';
-	'northbrook23': ip => '192.168.0.123',
+	'northbrook23': ip => '192.168.0.57',
 			host_aliases => 'jsamson';
 	'northbrook98': ip => '192.168.0.95',
 			host_aliases => 'mmasia';
@@ -18,7 +18,7 @@ class hosts {
 
 	# Servers
 	'puppet': ip => '192.168.0.39';
-	'bcap': ip => '192.168.0.76';
+	'bcap': ip => '192.168.0.249';
    }
 }
 
