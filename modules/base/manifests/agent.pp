@@ -1,3 +1,3 @@
-class server::puppet::agent {
+class base::agent {
 
 }

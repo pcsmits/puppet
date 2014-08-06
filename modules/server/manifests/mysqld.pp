@@ -30,4 +30,4 @@ class server::mysqld::service {
 	}
 }
 
-Class["server::mysqld::install"] -> Class["server::mysqld::config"] -> Class["server::mysqld::service"]
+#Class["server::mysqld::install"] -> Class["server::mysqld::config"] -> Class["server::mysqld::service"]

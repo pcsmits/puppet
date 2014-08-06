@@ -1,10 +1,5 @@
 include base
 
-node 'dev' {
-
-
-}
-
 # Puppet server
 node 'puppet' {
 	include server
@@ -32,13 +27,3 @@ node 'northbrook20' {
 	#Brent
 	include lab
 }
-
-#node /^northbrook\d+$/ {
-#}
-
-## mysql web
-#node '192.168.0.255' {
-#	include httpd
-#	include mysqld
-#	include php
-#}

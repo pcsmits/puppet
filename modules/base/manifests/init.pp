@@ -13,6 +13,7 @@ class base {
 ######
 
 class base::commands {
+  ## Disabling SELinux
   exec { "disable selinux on $hostname":
           user    => "root",
           command => "/usr/sbin/setenforce 0",
