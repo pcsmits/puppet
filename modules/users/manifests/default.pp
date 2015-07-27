@@ -5,68 +5,47 @@ class users::default {
 	uid => '0',
 	gid => '0',
 	home => '/root',
-	password => '$6$Sriaxa75$EHm7MwhlY/n1DwR69h8v/k26p4mOYfPqGzqJkj7H.vbcd1YMb4XS7hyxGe4z96QtHttQt.YoyPA3/1LSkl0GI/',
+    password => '$6$ke0rBNq5$mycLdfEGqWVEft8o3FnfRduDarl280gP9gXWfwBo8Z91v3NcDRDfjRtu9Fy6rHCMXyFcAlHEFXF.zAMBrbH5J0',
 	shell => '/bin/bash',
   }
 
-  group {'psmits':ensure => present,}
-  group {'mmasia':ensure => present,}
-  group {'jsamson':ensure => present,}
+  
+  $users = ['psmits','mmiller','nscott','bschmidt','sbbAdmin','myu','nagios']
+  define manageUser {
 
-  user {'psmits':
-    home => '/home/psmits',
-    ensure => 'present',
-    gid => 'psmits',
-    groups => 'wheel',
-    comment => 'Parker Smits',
-    managehome => true,
-    require => Group['psmits'],
-  }
-  file { '/home/psmits':
-	ensure => directory,
-	owner => 'psmits',
-	group => 'psmits',
-	mode => 755,
-	source => 'puppet://puppet/modules/users/psmits',
-	recurse => remote,
-	require => User['psmits'],
-  }
+      group { $name : ensure => present,}
 
-  user {'mmasia':
-    home => '/home/mmasia',
-    ensure => 'present',
-    gid => 'mmasia',
-    groups => 'wheel',
-    comment => 'Mitch Masia',
-    managehome => true,
-    require => Group['mmasia'],
-  }
-  file { '/home/mmasia':
-	ensure => directory,
-	owner => 'mmasia',
-	group => 'mmasia',
-	mode => 755,
-	source => 'puppet://puppet/modules/users/mmasia',
-	recurse => remote,
-	require => User['mmasia'],
-  }
+      user { $name :
+        home => "/home/$name",
+        ensure => 'present',
+        gid => $name,
+        groups => 'wheel',
+        managehome => true,
+        require => Group[$name],
+        notify => Exec[$name],
+      }
 
-  user {'jsamson':
-    home => '/home/jsamson',
-    ensure => 'present',
-    gid => 'jsamson',
-    groups => 'wheel',
-    comment => 'Jake Samson',
-    managehome => true,
-    require => Group['jsamson'],
+      $copyHome = file("/etc/puppet/modules/users/files/$name/.bashrc",'/dev/null')
+      if($copyHome != '') {
+          file { "/home/$name/.bashrc":
+            ensure => present,
+            owner => "$name",
+            group => "$name",
+            mode => 755,
+            source => "puppet://puppet/modules/users/$name/.bashrc",
+            recurse => remote,
+            require => User[$name],
+          }
+      }
+
+      exec { $name :
+         user => "root",
+         refreshonly => true,
+         command => "/usr/bin/echo \"trayU7ad\" | /usr/bin/passwd ${name} --stdin",
+      }
   }
-  file { '/home/jsamson':
-	ensure => directory,
-	owner => 'jsamson',
-	group => 'jsamson',
-	mode => 755,
-	source => 'puppet://puppet/modules/users/jsamson',
-	recurse => remote,
-	require => User['jsamson'],
-  }
+  manageUser { $users: }
 }
+
+
+	#password => '$6$Sriaxa75$EHm7MwhlY/n1DwR69h8v/k26p4mOYfPqGzqJkj7H.vbcd1YMb4XS7hyxGe4z96QtHttQt.YoyPA3/1LSkl0GI/',

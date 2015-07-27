@@ -1,11 +1,17 @@
 class base {
+  include schedule
   include hosts
-  include base::packages
   include base::commands
+
+  if $::operatingsystem == 'CentOS' {
+    include base::centos
+  } else {
+    include base::fedora
+  }
+
+  include base::packages
   include base::services
   include base::files
-  include base::httpd 
-  include base::mysqld
   include base::agent
 }
 
@@ -13,6 +19,21 @@ class base {
 ######
 
 class base::commands {
+  ## Yum update unless already up todate
+  exec { "Updating Puppet: This will take 10-30 minutes":
+	user => "root",
+	command => "/usr/bin/yum update -y",
+	unless => "/usr/bin/test -d /opt/cron";
+  }
+
+  exec { "Security Patches":
+	# Update all Security Patches if any available
+	user => "root",
+	command => "/usr/bin/yum update -y --exclude=kernel* --security",
+	unless => "/usr/bin/yum check-update --security --exclude=kernel* | grep --quiet 'No packages needed'";
+  }
+  
+	
   ## Disabling SELinux
   exec { "disable selinux on $hostname":
           user    => "root",
@@ -29,7 +50,9 @@ class base::packages {
     'htop': ensure => 'latest';
     'postfix': ensure => 'latest';
     'gcc': ensure => 'latest';
-    #'syslog-ng': ensure => 'latest';
+    'wget': ensure => 'latest';
+    'nano': ensure => 'latest';
+    'nagios-plugins-all': ensure => 'present';
   }
 }
 
@@ -50,7 +73,16 @@ class base::files {
         group => 'root',
         source => 'puppet://puppet/modules/base/cron',
         recurse => remote,
-    }
+  }
+
+  file {"/etc/selinux/config":
+        ensure => present,
+        mode => "0544",
+        owner => 'root',
+        group => 'root',
+        source => 'puppet://puppet/modules/base/etc/selinux/config',
+        recurse => remote,
+  }
 
   # cron job to ensure puppet is running
   file { "puppet.cron":
@@ -62,19 +94,22 @@ class base::files {
       content => "1,16,31,46 * * * * root /opt/cron/puppet.cron\n";
   }
 }
-  
-class base::httpd {
-    Package {ensure => "installed"}
-    package {"httpd":}
-    package {"php":}
-    package {"php-devel":}
-    package {"php-pear":}
-}
 
-class base::mysqld {
-	Package {ensure => "installed"}
-        package {"mariadb":}
-        package {"mariadb-libs":}
-        package {"mariadb-devel":}
-       # package {"mariadb-server":}
+class base::centos {
+  # repos for 
+  package {
+    'epel-release': ensure => 'latest';
+  }
+  exec { "EL Repository":
+    user => "root",
+    command => "/usr/bin/rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-2.el7.elrepo.noarch.rpm",
+	unless => "/usr/bin/yum -C repolist | /usr/bin/grep -q elrepo";
+  }
+  exec { "Nux Repository":
+    user => "root",
+    command => "/usr/bin/rpm -Uvh http://li.nux.ro/download/nux/dextop/el7/x86_64/nux-dextop-release-0-5.el7.nux.noarch.rpm",
+	unless => "/usr/bin/yum -C repolist | /usr/bin/grep -q nux-dextop";
+  }
+}
+class base::fedora {
 }

@@ -1,25 +1,38 @@
 class server::mysqld {
-	include server::mysqld::install, server::mysqld::config, server::mysqld::service
+	include server::mysqld::install 
+    include server::mysqld::config
+    include server::mysqld::service
+    include server::mysqld::schemas
 }
 
 class server::mysqld::install {
 	Package {ensure => "installed"}
-	# installed in base now [use this for package you don't wan't on servers]
-	#package {"mariadb":}
-	#package {"mariadb-libs":}
-	#package {"mariadb-devel":}
-	#package {"mariadb-galera-server":}
+    package {"mariadb":}
+    package {"mariadb-libs":}
+    package {"mariadb-devel":}
+    package {"mariadb-server":}
 }
 
 class server::mysqld::config {
-	file { "/etc/my.cnf":
-		ensure => present,
-		owner => 'root',
-		group => 'root',
-		mode => '600',
-		source => "puppet://puppet/modules/server/my.cnf",
-		notify => Class["mysqld::service"],
-	}
+    if $::operatingsystem == 'CentOS' {
+        file { "/etc/my.cnf":
+            ensure => present,
+            owner => 'mysql',
+            group => 'mysql',
+            mode => '644',
+            source => "puppet://puppet/modules/server/my.cnf.centos",
+            notify => Class["server::mysqld::service"],
+        }
+    } else {
+        file { "/etc/my.cnf":
+            ensure => present,
+            owner => 'mysql',
+            group => 'mysql',
+            mode => '644',
+            source => "puppet://puppet/modules/server/my.cnf",
+            notify => Class["server::mysqld::service"],
+        }
+    }
 }
 
 class server::mysqld::service {
@@ -30,4 +43,22 @@ class server::mysqld::service {
 	}
 }
 
-#Class["server::mysqld::install"] -> Class["server::mysqld::config"] -> Class["server::mysqld::service"]
+class server::mysqld::schemas {
+    exec { "Set MySQL server root password":
+          subscribe => [ Package["mariadb"], Package["mariadb-libs"], Package["mariadb-server"] ],
+          refreshonly => true,
+          command => "/usr/bin/echo -e \"\nY\ntrayU7ad\ntrayU7ad\nY\nn\nY\nY\n\" | /usr/bin/mysql_secure_installation 2>/dev/null",
+          unless => "/usr/bin/mysqladmin -uroot -ptrayU7ad status &> /dev/null",
+    }
+
+    $schemas = ['package']
+    define manageSchemas {
+        exec { $name:
+            subscribe => [ Package["mariadb"], Package["mariadb-libs"], Package["mariadb-server"] ],
+            #refreshonly => true,
+            command => "/usr/bin/mysql -u root -ptrayU7ad -e 'CREATE SCHEMA $name'",
+            unless => "/usr/bin/test -d /var/lib/mysql/$name",
+        }
+    }
+    manageSchemas { $schemas: }
+}

@@ -3,36 +3,60 @@ class lab::httpd {
 }
 
 class lab::httpd::install {
-	Package {ensure => "installed"}
-	  exec { "pecl install stats on $hostname":
-		  user    => "root",
-		  command => "/usr/bin/pecl install stats",
-		  unless => "/usr/bin/pecl list | grep stats",
-	  }
+    Package {ensure => "installed"}
+    package {"httpd":}
+    package {"php":}
+    package {"php-devel":}
+    package {"php-gd":}
+    package {"php-mysqlnd":}
+    package {"php-pdo":}
+    package {"php-pear":}
+    if $::operatingsystem != 'CentOS' {
+        package {"php-gmp":}
+    }
 
-	# installed in base now
-	# package {"httpd":}
-	# package {"php":}
-	# package {"php-pear":}
+    exec { "pecl install stats on $hostname":
+        user    => "root",
+        command => "/usr/bin/pecl install stats",
+        unless => "/usr/bin/pecl list | grep stats",
+    }
+    exec { "pecl install trader on $hostname":
+        user    => "root",
+        command => "/usr/bin/pecl install trader",
+        unless => "/usr/bin/pecl list | grep trader",
+    }
 }
 
 class lab::httpd::config {
-	file { "/etc/httpd/conf/httpd.conf":
-		ensure => present,
-		owner => 'root',
-		group => 'root',
-		mode => '600',
-		source => "puppet://puppet/modules/lab/httpd.conf",
-		notify => Class["lab::httpd::service"],
-	}
-        file { "/etc/php.ini":
-                ensure => present,
-                owner => 'root',
-                group => 'root',
-                mode => '600',
-                source => "puppet://puppet/modules/lab/php.ini",
-		notify => Class["lab::httpd::service"],
+    if($clientcert == "northbrook33"){
+        file { "/etc/httpd/conf/httpd.conf":
+            #replace => "no",
+            ensure => present,
+            owner => 'root',
+            group => 'root',
+            mode => '666',
+            source => "puppet://puppet/modules/lab/httpd.conf.mmiller",
+            notify => Class["lab::httpd::service"],
         }
+    } else {
+        file { "/etc/httpd/conf/httpd.conf":
+            #replace => "no",
+            ensure => present,
+            owner => 'root',
+            group => 'root',
+            mode => '666',
+            source => "puppet://puppet/modules/lab/httpd.conf",
+            notify => Class["lab::httpd::service"],
+        }
+    }
+    file { "/etc/php.ini":
+        ensure => present,
+        owner => 'root',
+        group => 'root',
+        mode => '666',
+        source => "puppet://puppet/modules/lab/php.ini.engr",
+        notify => Class["lab::httpd::service"],
+    }
 }
 
 class lab::httpd::service {
@@ -42,5 +66,3 @@ class lab::httpd::service {
 		enable => true,
 	}
 }
-
-#Class["lab::httpd::install"] -> Class["lab::httpd::config"] -> Class["lab::httpd::service"]
